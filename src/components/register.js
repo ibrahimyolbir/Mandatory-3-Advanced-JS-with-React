@@ -48,7 +48,8 @@ class Register extends React.Component {
                 })
                 .catch(error => {
                     if (!axios.isCancel(error)) {
-                        this.setState({ errorMessage: "Invalid username or password." });
+                        
+                        this.setState({ errorMessage: "Sorry, " + email + " already exists. Please use a different email adress." });
                     }
                 });
         }

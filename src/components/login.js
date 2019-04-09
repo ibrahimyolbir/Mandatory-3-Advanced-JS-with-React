@@ -48,7 +48,7 @@ class Login extends React.Component {
             .catch(error => {
                 
                 if (!axios.isCancel(error)) {
-                    this.setState({ errorMessage: "Something went wrong!" });
+                    this.setState({ errorMessage: "You have entered an invalid username or password" });
                 }
             });
     }
@@ -89,7 +89,7 @@ class Login extends React.Component {
                                 />
                             </TextField>
                         </div>
-                        {errorMessage ? <p style={{ color: "red" }}>{errorMessage}</p> : null}
+                        {errorMessage ? <p style={{ color: "red" }}><h3> Login failed:</h3>{errorMessage}</p> : null}
                         <div className="button-panel">
                             <button type="submit">Submit</button>
                         </div>

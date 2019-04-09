@@ -1,68 +1,162 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+# Mandatory Exercise 3 - Advanced JavaScript with React
+The deadline for this exercise is Friday, April 12, 08:59
+For this mandatory exercise you should work on master branch only.
+## Preparation
+1. Create a new repository on GitHub called mandatory-advanced-js3
+2. Follow the instructions that GitHub gives you; Create a local repository and add a remote
+or clone the newly created repository.
+## Submission
+When you submit the exercise in PingPong, before the deadline, you will enter a link to your
+repository, such as:
+(https://github.com/mygithubusername/mandatory-advanced-js3)
+The teacher will look in the master branch. If any commits are done to the branch after the
+deadline, the teacher will look at the last commit before the deadline.
+You will get one of the grades G or IG.
+## Instructions
+In this exercise you will create a Todo application with user registration and user authentication. A
+backend server has been provided for the exercise.
 
-In the project directory, you can run:
+With this application a user will be able to create a new user, sign in and manage a list of todo
+items.
 
-### `npm start`
+The authentication will be done using JSON Web Tokens (JWT).
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## JSON Web Tokens
+JSON Web Tokens is a standard used to issue secure access tokens.
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+Read more on
+[https://jwt.io/]
+(https://jwt.io/)
 
-### `npm test`
+JWT can be used to send information securely. A token contains an object (a payload) and is signed
+using a secret key. This makes it possible for the server to verify if the token is real or not without
+storing a copy of the token locally.
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+In this exercise the server will issue a token containing an email address when a user logs in. This
+token can be sent to the server using the Authorization header when making API calls.
 
-### `npm run build`
+The token should be sent like this:
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```sh
+Authorization: Bearer <token>
+```
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+The jsonwebtoken module can be used to decode tokens.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```sh
+import jwt from ‘jsonwebtoken’;
+const decoded = jwt.decode(token);
+console.log(decoded);
+```
+# Backend server
+The REST API is available at
 
-### `npm run eject`
+[http://ec2-13-53-32-89.eu-north-1.compute.amazonaws.com:3000/](http://ec2-13-53-32-89.eu-north-1.compute.amazonaws.com:3000/)
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### API endpoints
+The backend has endpoints for user registration, authentication and managing a personal todo list.
+The API will accept both JSON and form data. To illustrate how the API is used, examples using
+axios are provided.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+#### POST /register
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Used to register a new user. Requires an email and a password. If no error occurs the API will
+respond with status code 201.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Example
 
-## Learn More
+```sh 
+axios.post(API_ROOT + ‘/register’, { email, password });
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+#### POST /auth
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Used to sign in. Requires an email and a password. If the email and password are valid the API will
+respond with status code 200 and issue a JWT token which expires in 1 hour.
 
-### Code Splitting
+Example
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+```sh 
+axios.post(API_ROOT + ‘/auth’, { email, password });
+```
+#### GET /todos
 
-### Analyzing the Bundle Size
+Used to fetch a list of todos for a user. A JWT token must be sent with the request.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+Example
 
-### Making a Progressive Web App
+```sh 
+axios.get(API_ROOT + ‘/todos’, options);
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+#### POST /todos
 
-### Advanced Configuration
+Used to create a new todo. Requires an object with a “content” property.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+Example
 
-### Deployment
+```sh 
+axios.post(API_ROOT + ‘/todos’, { content: ‘Water the plants’ },
+options);
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+#### DELETE /todos/:id
 
-### `npm run build` fails to minify
+Used to delete a todo.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+Example
+
+```sh 
+axios.delete(API_ROOT + ‘/todos/’ + id, options);
+options);
+```
+
+# Views
+The application should contain at least three different pages:
+
+- A “registration page” with a form used to register a new user
+- A “login page” with a form used to sign in
+- A “todos page” with a list of todos and form to add a new todo
+
+Every page should share a header which shows the email address of the currently logged in user.
+The email should be extracted from JWT token.
+
+The header should also contain links to the login page, registration page and a button to sign out if
+the user is already signed in.
+
+# Registration page
+The registration page should contain a form with input fields for email and password. When the
+form is submitted a new user should be added using the API.
+
+An error message should be displayed if the API responds with an error.
+# Login page
+The login page should contain a form with input fields for email and password. When the form is
+submitted the client receives a JWT token. Save the token in localStorage so the user is still signed
+in if the page is refreshed.
+
+An error message should be displayed if the API responds with an error.
+
+# Todos page
+The todo page should fetch a list of todos from the server and display them in a list. It should be
+possible to delete items from the list.
+
+This page should also contain a form with a text input field used to add new todos.
+
+Display error messages if the API returns an error.
+
+# Requirements
+- The application should be an SPA written using React
+- It should implement correct routing
+- The user should stay signed in if the page is refreshed
+- Registration page
+- Login page
+- Todos page
+- The email shown in the header should be extracted from the JWT token. Save only the token in localStorage
+# Tips
+- Use react-router for routing
+- Try to break the application into smaller, simpler parts
+- Implement every page as a small application with its own state
+- Try to help each other and ask questions if you get stuck
+- Good luck!
